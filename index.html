@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joyeux anniversaire Joyce 🎉</title>
+<style>
+  :root {
+    --ciel: #7fc8f8;
+    --ciel-clair: #cfeeff;
+    --rose-pale: #ffd1e3;
+    --rose: #ff6fa3;
+    --jaune: #ffe58a;
+    --lavande: #c9b8ff;
+    --menthe: #9ff0d8;
+    --brun: #3d3556;
+    --blanc: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    color: var(--brun);
+    background: linear-gradient(135deg, var(--ciel-clair) 0%, var(--rose-pale) 50%, var(--ciel) 100%);
+    background-size: 300% 300%;
+    animation: fond 16s ease infinite;
+    overflow: hidden;
+  }
+  @keyframes fond {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  canvas#confettis { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+  .flottants { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .flottant { position: absolute; bottom: -60px; animation: monter linear infinite; }
+  @keyframes monter {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(-115vh) rotate(360deg); }
+  }
+
+  /* Pages */
+  .deck { position: relative; z-index: 1; height: 100vh; width: 100%; }
+  .page {
+    position: absolute; inset: 0; padding: 40px 20px 110px;
+    overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; transform: translateX(60px) scale(.96); pointer-events: none;
+    transition: opacity .6s ease, transform .6s cubic-bezier(.2,1,.3,1);
+  }
+  .page.active { opacity: 1; transform: none; pointer-events: auto; }
+  .page.sortie { transform: translateX(-60px) scale(.96); }
+
+  h1 {
+    font-size: clamp(2.1rem, 7vw, 3.4rem); margin: 0 0 10px; text-align: center;
+    background: linear-gradient(90deg, #ff6fa3, #7fc8f8, #c9b8ff, #ffe58a, #ff6fa3);
+    background-size: 300% auto; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: brille 5s linear infinite;
+  }
+  @keyframes brille { to { background-position: 300% center; } }
+  h2 {
+    font-size: 1.6rem; margin: 0 0 18px; text-align: center; color: var(--rose);
+    text-shadow: 2px 2px 0 var(--blanc);
+  }
+  .sous-titre { font-size: 1.2rem; margin: 0 0 24px; text-align: center; }
+
+  /* Page 1 : gâteau */
+  #gateau {
+    font-size: 130px; cursor: pointer; user-select: none; display: inline-block;
+    animation: rebond 2s ease-in-out infinite; transition: transform .2s;
+  }
+  #gateau:hover { transform: scale(1.1) rotate(-5deg); }
+  @keyframes rebond { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  .indice { font-size: 1rem; margin-top: 10px; background: var(--blanc); padding: 8px 16px; border-radius: 999px; }
+
+  /* Page 2 : enveloppe + lettre */
+  #enveloppe {
+    width: 100%; max-width: 420px; height: 220px; cursor: pointer;
+    background: linear-gradient(135deg, var(--ciel), var(--rose-pale));
+    border: 4px solid var(--blanc); border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(127, 200, 248, .45);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: bold; color: var(--brun);
+    animation: respire 2.4s ease-in-out infinite; transition: transform .3s;
+  }
+  #enveloppe:hover { transform: scale(1.04); }
+  #enveloppe.ouverte { animation: none; transform: scale(.6) translateY(-40px); opacity: 0; transition: all .6s ease; }
+  @keyframes respire { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+  #lettre {
+    display: none; background: var(--blanc); border-radius: 22px; padding: 26px 24px;
+    max-width: 580px; max-height: 62vh; overflow-y: auto;
+    box-shadow: 0 14px 34px rgba(201, 184, 255, .5); border: 3px dashed var(--jaune);
+  }
+  #lettre.visible { display: block; animation: arriver .8s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes arriver { from { transform: translateY(40px) rotate(-2deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  #lettre p { opacity: 0; transform: translateY(8px); transition: all .6s ease; margin: 0 0 12px; line-height: 1.7; }
+  #lettre p.montre { opacity: 1; transform: none; }
+  .signature { text-align: right; color: var(--ciel); font-style: italic; font-weight: bold; font-size: 1.1rem; }
+
+  /* Page 3 : WEBTOON */
+  .webtoon { width: 100%; max-width: 440px; max-height: 66vh; overflow-y: auto; padding: 4px; }
+  .case {
+    background: var(--blanc); border: 4px solid var(--brun); border-radius: 18px;
+    padding: 18px; margin-bottom: 14px; min-height: 90px;
+    display: flex; flex-direction: column; justify-content: center; gap: 8px;
+    opacity: 0; transform: scale(.85) translateY(30px); transition: all .6s cubic-bezier(.2,1.4,.4,1);
+    box-shadow: 6px 6px 0 var(--lavande);
+  }
+  .case.montre { opacity: 1; transform: none; }
+  .bulle {
+    background: var(--ciel-clair); border: 2px solid var(--brun); border-radius: 20px;
+    padding: 10px 14px; align-self: flex-start; max-width: 85%; font-size: .95rem;
+  }
+  .bulle.droite { align-self: flex-end; background: var(--rose-pale); }
+  .legende { font-weight: bold; color: var(--ciel); font-size: 1.05rem; }
+  .fin-case { background: linear-gradient(135deg, var(--jaune), var(--rose-pale)); font-weight: bold; font-size: 1.1rem; }
+
+  /* Page 4 : quiz */
+  .quiz { text-align: center; width: 100%; max-width: 480px; }
+  .quiz .question { font-size: 1.15rem; margin-bottom: 14px; background: var(--blanc); padding: 12px; border-radius: 16px; }
+  .quiz button {
+    display: block; margin: 10px auto; min-width: 250px; padding: 12px 20px;
+    font: inherit; font-size: 1.05rem; border-radius: 999px; border: none;
+    background: var(--menthe); color: var(--brun); cursor: pointer;
+    box-shadow: 0 5px 0 #6fc9b1; transition: transform .15s, box-shadow .15s;
+  }
+  .quiz button:hover:not(:disabled) { transform: translateY(-3px); }
+  .quiz button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #6fc9b1; }
+  .quiz button.bonne { background: var(--jaune); box-shadow: 0 5px 0 #d9b93b; }
+  .quiz button.fausse { background: #e6e6ef; box-shadow: none; opacity: .6; }
+  #deblocage { font-size: 1.2rem; color: var(--rose); margin-top: 18px; min-height: 2em; font-weight: bold; }
+  .cache { display: none; }
+
+  /* Page 5 : souhait */
+  .souhait {
+    background: var(--blanc); border-radius: 28px; padding: 28px 26px; max-width: 580px; max-height: 66vh; overflow-y: auto;
+    box-shadow: 0 14px 34px rgba(127, 200, 248, .45); border: 4px solid var(--rose-pale); position: relative;
+  }
+  .souhait p { margin: 0 0 14px; line-height: 1.75; }
+  .verset {
+    font-style: italic; color: var(--ciel); text-align: center; font-size: 1.05rem;
+    padding: 14px; background: var(--ciel-clair); border-radius: 16px;
+  }
+  .etoile { position: absolute; font-size: 22px; animation: scintille 2s ease-in-out infinite; }
+  @keyframes scintille { 0%,100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2) rotate(20deg); } }
+
+  /* Navigation */
+  nav {
+    position: fixed; bottom: 22px; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: center; align-items: center; gap: 16px;
+  }
+  nav button {
+    font: inherit; font-weight: bold; padding: 10px 20px; border-radius: 999px; border: none;
+    background: var(--blanc); color: var(--brun); cursor: pointer; box-shadow: 0 5px 14px rgba(61, 53, 86, .2);
+    transition: transform .15s;
+  }
+  nav button:hover:not(:disabled) { transform: translateY(-2px) scale(1.04); }
+  nav button:disabled { opacity: .35; cursor: default; }
+  .points { display: flex; gap: 8px; }
+  .point {
+    width: 12px; height: 12px; border-radius: 50%; background: var(--blanc); border: 2px solid var(--brun);
+    cursor: pointer; transition: transform .2s, background .2s;
+  }
+  .point.actif { background: var(--rose); transform: scale(1.3); }
+</style>
+</head>
+<body>
+
+<canvas id="confettis"></canvas>
+<div class="flottants" id="flottants"></div>
+
+<div class="deck" id="deck">
+
+  <!-- Page 1 -->
+  <div class="page active" data-titre="Accueil">
+    <h1>Joyeux anniversaire, Joyce ! 🎉</h1>
+    <p class="sous-titre">🎈 Une journée qui n'appartient qu'à toi 🎈</p>
+    <div id="gateau" onclick="soufflerBougies()" title="Clique !">🎂</div>
+    <p class="indice" id="indice">Clique sur le gâteau pour faire un vœu 🕯️</p>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" data-titre="Lettre">
+    <h2>✉️ Une lettre pour toi</h2>
+    <div id="enveloppe" onclick="ouvrirEnveloppe()">💌 Touche-moi pour ouvrir</div>
+    <div id="lettre">
+      <p>Joyce, ma belle amie 💖,</p>
+      <p>Je voulais prendre un moment rien que pour toi, parce que tu comptes énormément pour moi.</p>
+      <p>Tu es belle, et pas seulement de l'extérieur. Tu es intelligente, curieuse, et ta façon de faire les choses me donne envie d'être une meilleure personne ✨.</p>
+      <p>Tu ne le sais peut-être pas assez, mais quand je pense à toi, je pense à quelqu'un de précieux, sur qui je peux compter, et que j'aime sincèrement. Tenir à toi, c'est une évidence 🥰.</p>
+      <p>Que le Seigneur te bénisse et te garde 🙏. Qu'il fasse briller son visage sur toi et te donne la paix. Que cette nouvelle année soit remplie de grâce, de joie, de projets qui aboutissent et de portes qui s'ouvrent 🚪✨.</p>
+      <p>Que chaque livre que tu lis te fasse découvrir un monde nouveau 📚, que chaque leçon de russe te rapproche de tes rêves 🇷🇺, et que chaque fou rire partagé reste gravé dans ta mémoire 😂.</p>
+      <p>Merci d'être qui tu es. Merci pour ton amitié, ta présence et tout ce que tu apportes autour de toi 🌷.</p>
+      <p>Je te souhaite un anniversaire aussi beau que toi, et une année pleine de bonheur. Je t'aime beaucoup, mon amie 💕.</p>
+      <p class="signature">Avec tout mon amour, Glory 💙</p>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" data-titre="WEBTOON">
+    <h2>📖 Ton histoire en WEBTOON</h2>
+    <div class="webtoon">
+      <div class="case"><span class="legende">Épisode 1 : une fille qui aime lire 📚</span></div>
+      <div class="case"><div class="bulle">Encore un chapitre avant de dormir...</div><div class="bulle droite">Je ne peux pas m'arrêter, c'est trop bien ! 🤩</div></div>
+      <div class="case"><div class="bulle">Et puis il y a cette amie qui illumine chaque journée ☀️</div></div>
+      <div class="case"><div class="bulle droite">Elle est intelligente, belle, et tellement sincère 💖</div></div>
+      <div class="case"><div class="bulle">Elle apprend le russe, et ça impressionne tout le monde ! 🇷🇺</div></div>
+      <div class="case"><div class="bulle">Et ce qui la rend vraiment spéciale, c'est son cœur et sa foi 🙏</div></div>
+      <div class="case fin-case">FIN DU CHAPITRE 🎬 Mais l'histoire continue, mon amie. Joyeux anniversaire ! 🎉</div>
+    </div>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page" data-titre="Quiz">
+    <h2>🧠 Quiz russe</h2>
+    <div class="quiz">
+      <p class="question">Question 1 : comment dit-on « bonjour » en russe ? 🤔</p>
+      <button onclick="repondre(this, true, 1)">Привет</button>
+      <button onclick="repondre(this, false, 1)">Спасибо</button>
+      <button onclick="repondre(this, false, 1)">Пока</button>
+      <div id="q2" class="cache">
+        <p class="question" style="margin-top:26px;">Question 2 : comment dit-on « joyeux anniversaire » ? 🎂</p>
+        <button onclick="repondre(this, false, 2)">Доброе утро</button>
+        <button onclick="repondre(this, true, 2)">С днём рождения!</button>
+        <button onclick="repondre(this, false, 2)">До свидания</button>
+      </div>
+      <div id="deblocage"></div>
+    </div>
+  </div>
+
+  <!-- Page 5 -->
+  <div class="page" data-titre="Souhait">
+    <h2>💫 Mon souhait pour toi</h2>
+    <div class="souhait">
+      <span class="etoile" style="top:10px; right:14px;">✨</span>
+      <span class="etoile" style="bottom:12px; left:14px; animation-delay:1s;">⭐</span>
+      <p>Joyce, je te souhaite une année qui ressemble à ton cœur : douce, lumineuse et pleine de belles surprises 🌈.</p>
+      <p class="verset">🕊️ « Que l'Éternel te bénisse et te garde ; que l'Éternel fasse luire sa face sur toi et te fasse grâce. » 🕊️</p>
+      <p>Que Dieu comble chacun de tes désirs justes 💫, qu'il protège tes pas, et qu'il te rende la joie chaque matin ☀️.</p>
+      <p>Tu es une amie que j'aime énormément, et je tiens vraiment à toi 💗. Je te souhaite le plus beau des anniversaires !</p>
+      <p style="text-align:right; color:var(--ciel); font-weight:bold; font-style:italic;">Avec beaucoup, beaucoup d'amour, Glory 💙</p>
+    </div>
+  </div>
+
+</div>
+
+<nav>
+  <button id="prec" onclick="changer(-1)">← Précédent</button>
+  <div class="points" id="points"></div>
+  <button id="suiv" onclick="changer(1)">Suivant →</button>
+</nav>
+
+<script>
+  // ----- Émojis flottants -----
+  const emojis = ["🎈", "💖", "🎉", "✨", "🌸", "🎂", "🦋", "💫", "🥳", "🌷", "💙"];
+  const conteneur = document.getElementById("flottants");
+  for (let i = 0; i < 16; i++) {
+    const e = document.createElement("span");
+    e.className = "flottant";
+    e.textContent = emojis[i % emojis.length];
+    e.style.left = Math.random() * 100 + "vw";
+    e.style.animationDuration = (12 + Math.random() * 12) + "s";
+    e.style.animationDelay = (-Math.random() * 20) + "s";
+    e.style.fontSize = (20 + Math.random() * 18) + "px";
+    conteneur.appendChild(e);
+  }
+
+  // ----- Confettis -----
+  const canvas = document.getElementById("confettis");
+  const ctx = canvas.getContext("2d");
+  let morceaux = [];
+  const couleurs = ["#7fc8f8", "#ff6fa3", "#ffd1e3", "#ffe58a", "#c9b8ff", "#9ff0d8"];
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  resize();
+  addEventListener("resize", resize);
+
+  function lancerConfettis(n = 160, x = innerWidth / 2, y = innerHeight / 3) {
+    for (let i = 0; i < n; i++) {
+      morceaux.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 14,
+        vy: -Math.random() * 14 - 4,
+        taille: 6 + Math.random() * 6,
+        couleur: couleurs[Math.floor(Math.random() * couleurs.length)],
+        rot: Math.random() * Math.PI,
+        vrot: (Math.random() - 0.5) * 0.3,
+        vie: 180 + Math.random() * 60
+      });
+    }
+  }
+  function animer() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    morceaux.forEach(m => {
+      m.vy += 0.25; m.x += m.vx; m.y += m.vy; m.rot += m.vrot; m.vie--;
+      ctx.save();
+      ctx.translate(m.x, m.y); ctx.rotate(m.rot);
+      ctx.fillStyle = m.couleur;
+      ctx.fillRect(-m.taille / 2, -m.taille / 4, m.taille, m.taille / 2);
+      ctx.restore();
+    });
+    morceaux = morceaux.filter(m => m.vie > 0 && m.y < canvas.height + 20);
+    requestAnimationFrame(animer);
+  }
+  animer();
+
+  // ----- Navigation page par page -----
+  const pages = Array.from(document.querySelectorAll(".page"));
+  const pointsBox = document.getElementById("points");
+  let index = 0;
+
+  pages.forEach((p, i) => {
+    const pt = document.createElement("span");
+    pt.className = "point" + (i === 0 ? " actif" : "");
+    pt.title = p.dataset.titre;
+    pt.onclick = () => aller(i);
+    pointsBox.appendChild(pt);
+  });
+
+  function aller(i) {
+    if (i < 0 || i >= pages.length || i === index) return;
+    const ancienne = pages[index];
+    ancienne.classList.remove("active");
+    ancienne.classList.toggle("sortie", i > index);
+    const nouvelle = pages[i];
+    nouvelle.classList.remove("sortie");
+    nouvelle.classList.add("active");
+    index = i;
+    majNav();
+    if (i === pages.length - 1) {
+      setTimeout(() => lancerConfettis(220, innerWidth / 2, 0), 400);
+    }
+  }
+  function changer(delta) { aller(index + delta); }
+  function majNav() {
+    document.getElementById("prec").disabled = index === 0;
+    document.getElementById("suiv").disabled = index === pages.length - 1;
+    document.querySelectorAll(".point").forEach((pt, i) => pt.classList.toggle("actif", i === index));
+  }
+  addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") changer(1);
+    if (e.key === "ArrowLeft") changer(-1);
+  });
+  // Balayage tactile
+  let xDebut = null;
+  addEventListener("touchstart", e => { xDebut = e.touches[0].clientX; });
+  addEventListener("touchend", e => {
+    if (xDebut === null) return;
+    const dx = e.changedTouches[0].clientX - xDebut;
+    if (Math.abs(dx) > 60) changer(dx < 0 ? 1 : -1);
+    xDebut = null;
+  });
+  majNav();
+
+  // ----- Page 1 : gâteau -----
+  let bougiesSouflees = false;
+  function soufflerBougies() {
+    const g = document.getElementById("gateau");
+    g.style.transform = "scale(1.25) rotate(8deg)";
+    setTimeout(() => g.style.transform = "", 300);
+    const r = g.getBoundingClientRect();
+    lancerConfettis(120, r.left + r.width / 2, r.top);
+    if (!bougiesSouflees) {
+      bougiesSouflees = true;
+      document.getElementById("indice").textContent = "🌟 Ton vœu est fait ! Je souhaite qu'il se réalise 🌟";
+    }
+  }
+
+  // ----- Page 2 : enveloppe -----
+  let ouverte = false;
+  function ouvrirEnveloppe() {
+    if (ouverte) return;
+    ouverte = true;
+    const env = document.getElementById("enveloppe");
+    env.classList.add("ouverte");
+    setTimeout(() => { env.style.display = "none"; }, 600);
+    const lettre = document.getElementById("lettre");
+    lettre.classList.add("visible");
+    lettre.querySelectorAll("p").forEach((p, i) => {
+      setTimeout(() => p.classList.add("montre"), 500 + i * 800);
+    });
+    setTimeout(() => lancerConfettis(180), 600);
+  }
+
+  // ----- Page 3 : cases WEBTOON -----
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("montre");
+        obs.unobserve(e.target);
+      }
+    });
+  }, { root: document.querySelector(".webtoon"), threshold: 0.3 });
+  document.querySelectorAll(".case").forEach(c => obs.observe(c));
+  // Repli : révèle les cases quand la page 3 devient active
+  pages[2].addEventListener("transitionend", () => {
+    if (pages[2].classList.contains("active")) {
+      document.querySelectorAll(".case").forEach((c, i) => setTimeout(() => c.classList.add("montre"), i * 350));
+    }
+  });
+
+  // ----- Page 4 : quiz -----
+  function repondre(btn, juste, numero) {
+    const parent = btn.parentElement;
+    if (juste) {
+      btn.classList.add("bonne");
+      parent.querySelectorAll("button").forEach(b => { if (b !== btn) b.disabled = true; });
+      const r = btn.getBoundingClientRect();
+      lancerConfettis(150, r.left + r.width / 2, r.top);
+      if (numero === 1) {
+        document.getElementById("q2").classList.remove("cache");
+        document.getElementById("deblocage").textContent = "Bravo ! Ты очень важна для меня 💖 (Tu es très importante pour moi)";
+      } else {
+        document.getElementById("deblocage").textContent = "🥳 Parfait ! С днём рождения ! 🎉";
+        lancerConfettis(250);
+      }
+    } else {
+      btn.classList.add("fausse");
+      btn.disabled = true;
+    }
+  }
+</script>
+</body>
+</html>
